@@ -1,51 +1,35 @@
-# Importamos la herramienta VADER y la utilidad para manejar colecciones de datos
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-# import json # Ya no es necesario
+import joblib
+# No necesitamos VADER ni el diccionario español, ¡usamos nuestro modelo!
 
-# --- 1. Diccionario de Sentimientos en Español (Parte de la Solución) ---
-spanish_sentiment_lexicon = {
-    'excelente': 3.5,
-    'encanto': 2.9,
-    'perfecto': 3.0,
-    'bueno': 1.5,
-    'feliz': 2.5,
-    'odio': -3.4,
-    'frustracion': -3.0,
-    'terrible': -3.5,
-    'malo': -1.8,
-    'problema': -2.0,
-    'avanzar': 0.5, 
-    'perdi': -1.5 
-}
+# --- 1. CARGAR EL MODELO ENTRENADO ---
+try:
+    # Cargamos el modelo (el cerebro) y el vectorizador (el traductor)
+    modelo = joblib.load('modelo_ia.pkl')
+    vectorizer = joblib.load('vectorizer_ia.pkl')
+except FileNotFoundError:
+    print("Error: Los archivos del modelo (modelo_ia.pkl, vectorizer_ia.pkl) no se encontraron.")
+    # Si hay error, salimos, ya que la IA no puede funcionar.
+    exit()
 
-# --- 2. Adaptación de VADER (SOLUCIÓN AL ERROR) ---
-
-# Inicializamos el analizador SIN pasarle el diccionario al inicio
-analizador_vader = SentimentIntensityAnalyzer()
-
-# AÑADIMOS nuestro diccionario español al diccionario interno de VADER
-analizador_vader.lexicon.update(spanish_sentiment_lexicon) 
-
-# --- 3. Función de Clasificación (Igual que antes) ---
+# --- 2. FUNCIÓN DE CLASIFICACIÓN CON ML ---
 def clasificar_sentimiento(texto):
     """
-    Función que recibe un texto en español y devuelve su sentimiento.
+    Clasifica el texto usando el modelo de Machine Learning entrenado.
     """
     
-    texto_procesado = texto.lower() 
+    # 1. El texto se debe traducir al formato numérico que el modelo entiende
+    # Usamos el mismo vectorizador que usamos para entrenar.
+    texto_vectorizado = vectorizer.transform([texto]) 
     
-    # 1. Obtiene la puntuación de sentimiento de VADER
-    vs = analizador_vader.polarity_scores(texto_procesado)
+    # 2. El modelo predice la etiqueta (0 o 1)
+    prediccion = modelo.predict(texto_vectorizado)[0]
     
-    # 2. La polaridad será el valor 'compound' (combinado)
-    polaridad = vs['compound']
-    
-    # 3. Clasificamos el resultado 
-    if polaridad > 0.1:
-        resultado = "Positivo 😊"
-    elif polaridad < -0.1:
-        resultado = "Negativo 😠"
-    else:
-        resultado = "Neutral 😐"
+    # 3. Traducimos la predicción a un resultado legible
+    if prediccion == 1:
+        resultado = "Positivo 😊 (ML)"
+    else: # predicion == 0
+        resultado = "Negativo 😠 (ML)"
         
-    return resultado, polaridad
+    # NOTA: Los modelos ML no dan una "polaridad" simple, solo la clase (0 o 1). 
+    # Por eso devolvemos la clase y una puntuación simple (1 o 0).
+    return resultado, float(prediccion)
