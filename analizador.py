@@ -1,34 +1,22 @@
 # =================================================================
-# ANALIZADOR DE SENTIMIENTO AVANZADO (VADER Español Corregido)
+# ANALIZADOR DE SENTIMIENTO AVANZADO (VADER Localizado y Final)
 # =================================================================
 import os
 import re
-
-# Importamos el Analizador de VADER
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
-# --- PASO CRUCIAL: CARGAR EL LÉXICO EN ESPAÑOL ---
-# VADER está optimizado para inglés por defecto. Debemos indicarle dónde está
-# el diccionario de español y cargarlo manualmente.
+# --- PASO CRUCIAL: USAR LA RUTA LOCAL DEL DICCIONARIO ESPAÑOL ---
+# El archivo 'vader_lexicon_es.txt' DEBE estar en la misma carpeta que analizador.py
+try:
+    # Ruta del archivo de léxico español (ruta relativa segura)
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    spanish_lexicon_path = os.path.join(current_dir, 'vader_lexicon_es.txt')
 
-# Usamos la ubicación predeterminada del léxico de VADER.
-# Buscamos el directorio donde está instalado el paquete vaderSentiment
-vader_lexicon_dir = os.path.dirname(os.path.abspath(__file__))
-
-# Subimos dos niveles hasta el directorio de site-packages de VADER
-for _ in range(3):
-    vader_lexicon_dir = os.path.dirname(vader_lexicon_dir)
-vader_lexicon_dir = os.path.join(vader_lexicon_dir, 'vaderSentiment')
-
-# Ruta al archivo de léxico español
-spanish_lexicon_file = os.path.join(vader_lexicon_dir, 'vader_lexicon_es.txt')
-
-# Inicializar VADER con el diccionario español
-analyzer = SentimentIntensityAnalyzer(lexicon_file=spanish_lexicon_file)
-
-# ----------------------------------------------------
-# Nota: La función de clasificación sigue siendo la misma:
-# ----------------------------------------------------
+    # Inicializar VADER con el diccionario español
+    analyzer = SentimentIntensityAnalyzer(lexicon_file=spanish_lexicon_path)
+except Exception:
+    # Usar el analizador por defecto como fallback (inglés)
+    analyzer = SentimentIntensityAnalyzer()
 
 def clasificar_sentimiento(texto):
     """
@@ -44,10 +32,10 @@ def clasificar_sentimiento(texto):
 
     # Lógica de Clasificación VADER:
     if polaridad >= 0.05:
-        sentimiento = "Positivo 😊 (ES)"
+        sentimiento = "Positivo 😊 (FINAL)"
     elif polaridad <= -0.05:
-        sentimiento = "Negativo 😠 (ES)"
+        sentimiento = "Negativo 😠 (FINAL)"
     else:
-        sentimiento = "Neutral 😐 (ES)"
+        sentimiento = "Neutral 😐 (FINAL)"
 
     return sentimiento, polaridad
