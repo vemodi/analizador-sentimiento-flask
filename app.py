@@ -37,5 +37,9 @@ def index():
 
     return render_template('index.html', resultado_final=resultado_analisis)
 
-if __name__ == '__main__':
-    app.run(debug=True)
+#if __name__ == '__main__':
+ #   app.run(debug=True)
+
+ if __name__ == '__main__':
+    # app.run(debug=True) <--- ELIMINA o COMENTA esta línea para el despliegue
+    pass # Puedes dejarlo así si quieres
