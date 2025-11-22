@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Clasificador de Sentimiento (Full Stack + IA)</title>
     <style>
-        /* Estilos CSS (No hay cambios aquí) */
+        /* Variables CSS para facilitar el cambio de colores */
         :root {
             --color-primary: #5a76e7;
             --color-secondary: #ff6b6b;
@@ -87,7 +87,7 @@
         }
 
         button:active {
-            transform: scale(0.98); /* Efecto de click */
+            transform: scale(0.98);
         }
 
         /* Contenedor de Resultado */
@@ -101,7 +101,7 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            opacity: 0; /* Inicialmente invisible */
+            opacity: 0;
             transform: translateY(20px);
             transition: opacity 0.5s ease-out, transform 0.5s ease-out;
         }
@@ -116,7 +116,7 @@
 <body>
 
     <div class="container">
-       
+        
         <h1>Analizador de Sentimiento con IA</h1>
         <p>Ingresa un texto para que nuestro modelo de PNL (Procesamiento de Lenguaje Natural) determine si es positivo, negativo o neutral.</p>
 
@@ -126,22 +126,23 @@
         </form>
 
         <div id="resultado">
-            {% if resultado_final %}
-                <script>
-                    document.addEventListener('DOMContentLoaded', function() {
-                        const resultadoDiv = document.getElementById('resultado');
-                        resultadoDiv.classList.add('{{ resultado_final.clase_css }}');
-                        resultadoDiv.style.opacity = 1;
-                        resultadoDiv.style.transform = 'translateY(0)';
-                    });
-                </script>
-                
-                Sentimiento Detectado: <strong style="color: {{ resultado_final.color_hex }};">{{ resultado_final.sentimiento }}</strong><br>
-                Puntuación de Polaridad: {{ resultado_final.polaridad | round(4) }}
-            {% else %}
-                Esperando análisis...
-            {% endif %}
+            Sentimiento Detectado: <strong style="color: {{ resultado_final.color_hex }};">{{ resultado_final.sentimiento }}</strong><br>
+            Puntuación de Polaridad: {{ resultado_final.polaridad | round(4) }}
         </div>
 
-    </div> </body>
+    </div> {% if request.method == 'POST' %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const resultadoDiv = document.getElementById('resultado');
+            // Añade la clase CSS (ej. resultado-positivo)
+            resultadoDiv.classList.add('{{ resultado_final.clase_css }}');
+            
+            // Ejecuta la animación
+            resultadoDiv.style.opacity = 1;
+            resultadoDiv.style.transform = 'translateY(0)';
+        });
+    </script>
+    {% endif %}
+
+</body>
 </html>

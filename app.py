@@ -6,15 +6,24 @@ app = Flask(__name__)
 # RUTA PRINCIPAL
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    resultado_analisis = None
+    # Establecer valores por defecto (Neutral) para la carga inicial (GET)
+    resultado_analisis = {
+        'sentimiento': 'Neutral 😊',
+        'polaridad': 0.0,
+        'clase_css': 'resultado-neutral',
+        'color_hex': '#f4c20d' # Amarillo/Ocre, el color del Neutral
+    }
     
+    # ----------------------------------------------------
+    # LÓGICA DE PROCESAMIENTO (POST)
+    # ----------------------------------------------------
     if request.method == 'POST':
         texto = request.form.get('texto_input')
         
         if texto:
             sentimiento, polaridad = clasificar_sentimiento(texto)
             
-            # --- NUEVA LÓGICA: Asignar clase CSS y color ---
+            # Asignar clase CSS y color basada en el resultado del modelo ML
             clase_css = "resultado-neutral"
             color_hex = "#f4c20d" # Amarillo
 
@@ -25,21 +34,16 @@ def index():
                 clase_css = "resultado-negativo"
                 color_hex = "#ff6b6b" # Rojo
 
-            # 4. Empaquetamos el resultado para enviarlo al HTML
+            # Empaquetamos el resultado final
             resultado_analisis = {
                 'sentimiento': sentimiento,
                 'polaridad': polaridad,
-                'clase_css': clase_css,    # <-- NUEVO
-                'color_hex': color_hex     # <-- NUEVO
+                'clase_css': clase_css,
+                'color_hex': color_hex
             }
         
-        # El resto del código de manejo de errores sigue igual...
-
     return render_template('index.html', resultado_final=resultado_analisis)
 
-#if __name__ == '__main__':
- #   app.run(debug=True)
-
- if __name__ == '__main__':
-    # app.run(debug=True) <--- ELIMINA o COMENTA esta línea para el despliegue
-    pass # Puedes dejarlo así si quieres
+# Recuerda eliminar o comentar la línea app.run(debug=True) para el despliegue
+# if __name__ == '__main__':
+#     app.run(debug=True)
