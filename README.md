@@ -77,3 +77,5 @@ El análisis de sentimiento se realiza mediante la librería **VADER Sentiment**
 * [Veronica] - *Desarrollador Full Stack/IA*
 
 ---
+***
+Nota de prueba para forzar commit: 2025-11-22
