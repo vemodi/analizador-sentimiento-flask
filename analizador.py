@@ -1,42 +1,53 @@
 # =================================================================
-# ANALIZADOR DE SENTIMIENTO AVANZADO (Basado en VADER)
+# ANALIZADOR DE SENTIMIENTO AVANZADO (VADER Español Corregido)
 # =================================================================
+import os
+import re
 
-# Importamos el Analizador de VADER para el idioma español
+# Importamos el Analizador de VADER
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
-# Creamos una instancia del analizador
-# VADER es un modelo basado en reglas de léxico (palabras y su valor emocional)
-analyzer = SentimentIntensityAnalyzer()
+# --- PASO CRUCIAL: CARGAR EL LÉXICO EN ESPAÑOL ---
+# VADER está optimizado para inglés por defecto. Debemos indicarle dónde está
+# el diccionario de español y cargarlo manualmente.
+
+# Usamos la ubicación predeterminada del léxico de VADER.
+# Buscamos el directorio donde está instalado el paquete vaderSentiment
+vader_lexicon_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Subimos dos niveles hasta el directorio de site-packages de VADER
+for _ in range(3):
+    vader_lexicon_dir = os.path.dirname(vader_lexicon_dir)
+vader_lexicon_dir = os.path.join(vader_lexicon_dir, 'vaderSentiment')
+
+# Ruta al archivo de léxico español
+spanish_lexicon_file = os.path.join(vader_lexicon_dir, 'vader_lexicon_es.txt')
+
+# Inicializar VADER con el diccionario español
+analyzer = SentimentIntensityAnalyzer(lexicon_file=spanish_lexicon_file)
+
+# ----------------------------------------------------
+# Nota: La función de clasificación sigue siendo la misma:
+# ----------------------------------------------------
 
 def clasificar_sentimiento(texto):
     """
-    Clasifica el sentimiento de un texto dado utilizando el modelo VADER.
-    Devuelve el sentimiento (Positivo/Negativo/Neutral) y la Polaridad.
+    Clasifica el sentimiento de un texto dado utilizando el modelo VADER en español.
     """
     
+    # Preprocesamiento simple para VADER
+    texto = re.sub(r'[^\w\s\.\,\!\?]', '', texto.lower())
+    
     # Obtener el puntaje de polaridad de VADER
-    # 'compound' es la puntuación general normalizada entre -1 (negativo) y +1 (positivo)
     vs = analyzer.polarity_scores(texto)
     polaridad = vs['compound']
 
-    # ----------------------------------------------------
-    # Lógica de Clasificación de VADER:
-    # ----------------------------------------------------
-    
-    # 1. POSITIVO: Puntaje > 0.05
+    # Lógica de Clasificación VADER:
     if polaridad >= 0.05:
-        sentimiento = "Positivo 😊 (VADER)"
-        
-    # 2. NEGATIVO: Puntaje < -0.05
+        sentimiento = "Positivo 😊 (ES)"
     elif polaridad <= -0.05:
-        sentimiento = "Negativo 😠 (VADER)"
-        
-    # 3. NEUTRAL: Puntaje entre -0.05 y 0.05
+        sentimiento = "Negativo 😠 (ES)"
     else:
-        sentimiento = "Neutral 😐 (VADER)"
+        sentimiento = "Neutral 😐 (ES)"
 
-    # Devolvemos el sentimiento clasificado y la puntuación de polaridad
     return sentimiento, polaridad
-
-# NOTA: Ya no necesitamos cargar el modelo ni el vectorizador aquí.
