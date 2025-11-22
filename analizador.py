@@ -1,35 +1,42 @@
-import joblib
-# No necesitamos VADER ni el diccionario español, ¡usamos nuestro modelo!
+# =================================================================
+# ANALIZADOR DE SENTIMIENTO AVANZADO (Basado en VADER)
+# =================================================================
 
-# --- 1. CARGAR EL MODELO ENTRENADO ---
-try:
-    # Cargamos el modelo (el cerebro) y el vectorizador (el traductor)
-    modelo = joblib.load('modelo_ia.pkl')
-    vectorizer = joblib.load('vectorizer_ia.pkl')
-except FileNotFoundError:
-    print("Error: Los archivos del modelo (modelo_ia.pkl, vectorizer_ia.pkl) no se encontraron.")
-    # Si hay error, salimos, ya que la IA no puede funcionar.
-    exit()
+# Importamos el Analizador de VADER para el idioma español
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
-# --- 2. FUNCIÓN DE CLASIFICACIÓN CON ML ---
+# Creamos una instancia del analizador
+# VADER es un modelo basado en reglas de léxico (palabras y su valor emocional)
+analyzer = SentimentIntensityAnalyzer()
+
 def clasificar_sentimiento(texto):
     """
-    Clasifica el texto usando el modelo de Machine Learning entrenado.
+    Clasifica el sentimiento de un texto dado utilizando el modelo VADER.
+    Devuelve el sentimiento (Positivo/Negativo/Neutral) y la Polaridad.
     """
     
-    # 1. El texto se debe traducir al formato numérico que el modelo entiende
-    # Usamos el mismo vectorizador que usamos para entrenar.
-    texto_vectorizado = vectorizer.transform([texto]) 
+    # Obtener el puntaje de polaridad de VADER
+    # 'compound' es la puntuación general normalizada entre -1 (negativo) y +1 (positivo)
+    vs = analyzer.polarity_scores(texto)
+    polaridad = vs['compound']
+
+    # ----------------------------------------------------
+    # Lógica de Clasificación de VADER:
+    # ----------------------------------------------------
     
-    # 2. El modelo predice la etiqueta (0 o 1)
-    prediccion = modelo.predict(texto_vectorizado)[0]
-    
-    # 3. Traducimos la predicción a un resultado legible
-    if prediccion == 1:
-        resultado = "Positivo 😊 (ML)"
-    else: # predicion == 0
-        resultado = "Negativo 😠 (ML)"
+    # 1. POSITIVO: Puntaje > 0.05
+    if polaridad >= 0.05:
+        sentimiento = "Positivo 😊 (VADER)"
         
-    # NOTA: Los modelos ML no dan una "polaridad" simple, solo la clase (0 o 1). 
-    # Por eso devolvemos la clase y una puntuación simple (1 o 0).
-    return resultado, float(prediccion)
+    # 2. NEGATIVO: Puntaje < -0.05
+    elif polaridad <= -0.05:
+        sentimiento = "Negativo 😠 (VADER)"
+        
+    # 3. NEUTRAL: Puntaje entre -0.05 y 0.05
+    else:
+        sentimiento = "Neutral 😐 (VADER)"
+
+    # Devolvemos el sentimiento clasificado y la puntuación de polaridad
+    return sentimiento, polaridad
+
+# NOTA: Ya no necesitamos cargar el modelo ni el vectorizador aquí.

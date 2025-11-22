@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-from analizador import clasificar_sentimiento 
+from analizador import clasificar_sentimiento # Importamos la función de VADER
 
 app = Flask(__name__)
 
@@ -7,11 +7,12 @@ app = Flask(__name__)
 @app.route('/', methods=['GET', 'POST'])
 def index():
     # Establecer valores por defecto (Neutral) para la carga inicial (GET)
+    # Los valores iniciales deben coincidir con la lógica de VADER (polaridad 0 es neutral)
     resultado_analisis = {
-        'sentimiento': 'Neutral 😊',
+        'sentimiento': 'Neutral 😐 (Inicial)',
         'polaridad': 0.0,
         'clase_css': 'resultado-neutral',
-        'color_hex': '#f4c20d' # Amarillo/Ocre, el color del Neutral
+        'color_hex': '#f4c20d' # Amarillo/Ocre
     }
     
     # ----------------------------------------------------
@@ -21,11 +22,14 @@ def index():
         texto = request.form.get('texto_input')
         
         if texto:
+            # VADER hace la clasificación aquí
             sentimiento, polaridad = clasificar_sentimiento(texto)
             
-            # Asignar clase CSS y color basada en el resultado del modelo ML
+            # ----------------------------------------------------
+            # NUEVA LÓGICA DE ASIGNACIÓN DE COLOR (Más simple)
+            # ----------------------------------------------------
             clase_css = "resultado-neutral"
-            color_hex = "#f4c20d" # Amarillo
+            color_hex = "#f4c20d"
 
             if "Positivo" in sentimiento:
                 clase_css = "resultado-positivo"
@@ -44,6 +48,5 @@ def index():
         
     return render_template('index.html', resultado_final=resultado_analisis)
 
-# Recuerda eliminar o comentar la línea app.run(debug=True) para el despliegue
 # if __name__ == '__main__':
 #     app.run(debug=True)
