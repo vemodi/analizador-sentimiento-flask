@@ -4,106 +4,144 @@
     <meta charset="UTF-8">
     <title>Clasificador de Sentimiento (Full Stack + IA)</title>
     <style>
-        /* Estilos CSS muy básicos (Cómo se ve) */
-       body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Fuente moderna */
-            max-width: 700px; 
-            margin: 50px auto; 
-            padding: 30px; 
-            background-color: #f4f7f9; /* Fondo gris muy claro */
-            border-radius: 12px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Sombra suave */
-        }
-        button { 
-            background-color: #007bff; /* Color azul brillante para acento */
-            color: white; 
-            padding: 12px 20px; 
-            border: none; 
-            cursor: pointer; 
-            border-radius: 6px; 
-            margin-top: 15px; 
-            font-size: 16px;
-            transition: background-color 0.3s; /* Animación al pasar el ratón */
-        }
-        button:hover { /* Lo que sucede cuando pasas el ratón */
-            background-color: #0056b3; 
-        }
-        textarea { 
-            width: 100%; 
-            min-height: 150px; 
-            padding: 15px; /* Más espacio interior */
-            box-sizing: border-box; 
-            border: 1px solid #ced4da; /* Borde más suave */
-            border-radius: 6px; 
-            resize: none; /* No permite redimensionar */
-            font-size: 16px;
+        /* Estilos CSS (No hay cambios aquí) */
+        :root {
+            --color-primary: #5a76e7;
+            --color-secondary: #ff6b6b;
+            --color-background: #1e1e2f;
+            --color-surface: #27293d;
+            --color-text: #e0e0e0;
+            --color-neutral: #f4c20d;
         }
 
-        #resultado { 
-            margin-top: 25px; 
-            padding: 20px; 
-            border: none; 
-            background-color: white; /* Fondo blanco para el resultado */
-            border-left: 5px solid #007bff; /* Una barra azul decorativa a la izquierda */
-            border-radius: 6px; 
-            font-weight: bold; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--color-background);
+            color: var(--color-text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px;
+            min-height: 100vh;
         }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background-color: var(--color-surface);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+        
+        h1 {
+            color: var(--color-primary);
+            text-align: center;
+            margin-bottom: 5px;
+            font-size: 2.5em;
+        }
+
+        p {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #b0b0b0;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            box-sizing: border-box;
+            border: 2px solid var(--color-surface);
+            border-radius: 8px;
+            background-color: #33354d;
+            color: var(--color-text);
+            resize: vertical;
+            font-size: 1.1em;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin-top: 20px;
+            background-color: var(--color-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2em;
+            font-weight: bold;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        button:hover {
+            background-color: #435eb8;
+        }
+
+        button:active {
+            transform: scale(0.98); /* Efecto de click */
+        }
+
+        /* Contenedor de Resultado */
+        #resultado {
+            margin-top: 35px;
+            padding: 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            opacity: 0; /* Inicialmente invisible */
+            transform: translateY(20px);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+
+        /* Clases para los diferentes resultados (el servidor las añadirá) */
+        .resultado-positivo { background-color: #274b3d; border-left: 5px solid #4CAF50; }
+        .resultado-negativo { background-color: #553333; border-left: 5px solid var(--color-secondary); }
+        .resultado-neutral { background-color: #4b4933; border-left: 5px solid var(--color-neutral); }
+    
     </style>
 </head>
 <body>
 
-    <h1>Analizador de Sentimiento con IA</h1>
-    <p>Ingresa un texto para que nuestro modelo de PNL (Procesamiento de Lenguaje Natural) determine si es positivo, negativo o neutral.</p>
+    <div class="container">
+       
+        <h1>Analizador de Sentimiento con IA</h1>
+        <p>Ingresa un texto para que nuestro modelo de PNL (Procesamiento de Lenguaje Natural) determine si es positivo, negativo o neutral.</p>
 
-    <textarea id="texto_a_analizar" placeholder="Escribe aquí tu opinión, comentario o reseña..."></textarea>
-    <button onclick="analizarSentimiento()">Analizar</button>
+        <form method="POST" action="/">
+            <textarea name="texto_input" placeholder="Escribe aquí tu opinión, comentario o reseña..."></textarea>
+            <button type="submit">Analizar</button>
+        </form>
 
-    <div id="resultado">Esperando análisis...</div>
+        <div id="resultado">
+            {% if resultado_final %}
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const resultadoDiv = document.getElementById('resultado');
+                        resultadoDiv.classList.add('{{ resultado_final.clase_css }}');
+                        resultadoDiv.style.opacity = 1;
+                        resultadoDiv.style.transform = 'translateY(0)';
+                    });
+                </script>
+                
+                Sentimiento Detectado: <strong style="color: {{ resultado_final.color_hex }};">{{ resultado_final.sentimiento }}</strong><br>
+                Puntuación de Polaridad: {{ resultado_final.polaridad | round(4) }}
+            {% else %}
+                Esperando análisis...
+            {% endif %}
+        </div>
 
-    <script>
-        // 🚀 La parte JavaScript: Conecta esta página con el Mesero (app.py)
-
-        function analizarSentimiento() {
-            // 1. Obtener el texto que el usuario escribió
-            const texto = document.getElementById('texto_a_analizar').value;
-            const resultadoDiv = document.getElementById('resultado');
-            resultadoDiv.innerHTML = 'Analizando...'; // Muestra "Analizando..." mientras espera
-
-            // 2. Preparamos el pedido (los datos que vamos a enviar al Mesero)
-            const data = {
-                texto: texto
-            };
-
-            // 3. Hacemos el Pedido al Mesero (Flask)
-            // fetch es la herramienta para hablar con el servidor web
-            fetch('/analizar_sentimiento', {
-                method: 'POST', // Le dice al Mesero que estamos enviando datos (POST)
-                headers: {
-                    'Content-Type': 'application/json' // Le dice que los datos son JSON
-                },
-                body: JSON.stringify(data) // Enviamos el texto en el formato correcto
-            })
-            // 4. Esperamos la respuesta del Mesero (la función .then)
-            .then(response => response.json()) // Convierte la respuesta del Mesero (JSON) en datos que JavaScript entiende
-            .then(data => {
-                // 5. Mostrar el Resultado en la pantalla
-                if (data.error) {
-                    resultadoDiv.innerHTML = `Error: ${data.error}`;
-                } else {
-                    resultadoDiv.innerHTML = `
-                        Sentimiento Detectado: <strong>${data.sentimiento}</strong><br>
-                        Puntuación de Polaridad: ${data.polaridad.toFixed(4)}
-                    `;
-                }
-            })
-            // 6. Si algo falla (ej. el servidor está apagado)
-            .catch(error => {
-                resultadoDiv.innerHTML = 'Ocurrió un error al conectar con el servidor.';
-                console.error('Error:', error);
-            });
-        }
-    </script>
-
-</body>
+    </div> </body>
 </html>
